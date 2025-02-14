@@ -37,19 +37,19 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(
-  session({
-    name: "session_id",
-    saveUninitialized: false,
-    resave: false,
-    secret: process.env.SECRET_KEY,
-    // cookie: {
-    //   maxAge: 1000 * 60 * 60 * 2, // 2 hours
-    //   secure: false,
-    //   httpOnly: true,
-    // }
-  })
-);
+// app.use(
+//   session({
+//     name: "session_id",
+//     saveUninitialized: false,
+//     resave: false,
+//     secret: process.env.SECRET_KEY,
+//     // cookie: {
+//     //   maxAge: 1000 * 60 * 60 * 2, // 2 hours
+//     //   secure: false,
+//     //   httpOnly: true,
+//     // }
+//   })
+// );
 
 app.use(passport.initialize());
 app.use(passport.session());
