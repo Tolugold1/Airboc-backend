@@ -181,19 +181,19 @@ exports.authenticateJWT = async (req, res, next) => {
       const user = await jwt.verify(token, process.env.SECRET_KEY);
 
       // Check refreshToken from redis
-      const refreshToken = await redisClient.get("refreshToken-" + user._id);
+      // const refreshToken = await redisClient.get("refreshToken-" + user._id);
 
-      if (refreshToken && req.cookies.refreshToken !== refreshToken) {
-        console.log("Incorrect refresh token");
-        res.clearCookie('session_id');
-        res.clearCookie('jwt');
-        res.clearCookie('refreshToken');
-        return res.status(403).json({
-          success: false,
-          status: process.env.FRONTEND_URL,
-          message: "Refresh token mismatch",
-        });
-      }
+      // if (refreshToken && req.cookies.refreshToken !== refreshToken) {
+      //   console.log("Incorrect refresh token");
+      //   res.clearCookie('session_id');
+      //   res.clearCookie('jwt');
+      //   res.clearCookie('refreshToken');
+      //   return res.status(403).json({
+      //     success: false,
+      //     status: process.env.FRONTEND_URL,
+      //     message: "Refresh token mismatch",
+      //   });
+      // }
 
       // If everything is good, attach user to request
       req.user = user;
