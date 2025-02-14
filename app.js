@@ -25,7 +25,7 @@ const passport = require("passport");
 // connect to the database.
 connectDB();
 
-app.use(cors({ origin: ["http://localhost:5173", "http://localhost:8000" ], credentials: true }));
+app.use(cors({ origin: ["https://airbox-tgold.netlify.app/", "https://airboc-backend.onrender.com" ], credentials: true }));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
