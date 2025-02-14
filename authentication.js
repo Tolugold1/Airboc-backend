@@ -174,10 +174,10 @@ passport.use(
 
 exports.authenticateJWT = async (req, res, next) => {
   let token = req.cookies.jwt || req.headers.authorization;
-  console.log("token", req.headers.authorization);
+  console.log("token", req.headers.authorization.split(" ")[1]);
   console.log("token", req.headers);
   if (req.cookies.jwt == undefined || req.cookies.jwt == null) {
-    token = req.headers.authorization;
+    token = req.headers.authorization.split(" ")[1];
   }
   if (token) {
     try {
