@@ -173,8 +173,11 @@ passport.use(
 );
 
 exports.authenticateJWT = async (req, res, next) => {
-  const token = req.cookies.jwt;
-
+  const token = req.cookies.jwt || req.headers.authorization;
+  // console.log("token", req.headers.authorization);
+  if (req.cookies.jwt == undefined || req.cookies.jwt == null) {
+    token = req.headers.authorization;
+  }
   if (token) {
     try {
       // Verify JWT token
