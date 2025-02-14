@@ -19,7 +19,7 @@ router.get("/created-booking-item/:businessId", validateClientBookings, authenti
 
 router.get("/get-all-Booking-Items", authenticate.authenticateJWT, controller.HTTPsGetAllBookingItems)
 
-router.get("/get-client-bookings", authenticate.authenticateJWT, controller.HTTPGetClientBookings)
+router.get("/get-client-bookings/:clientProfileId", authenticate.authenticateJWT, controller.HTTPGetClientBookings)
 
 router.get("/get-business-bookings/:businessId", authenticate.authenticateJWT, controller.HTTPGetBusinessBookings)
 

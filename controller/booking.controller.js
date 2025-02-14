@@ -135,7 +135,7 @@ exports.HTTPGetClientBookings = async (req, res, next) => {
   try {
     let {    
       clientProfileId,
-    } = req.body;
+    } = req.params;
     const data = await Service.getbookingsByClient({ 
       clientProfileId,
     });

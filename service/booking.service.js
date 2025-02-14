@@ -139,7 +139,8 @@ exports.allBookingItemFromBusinesses = async () => {
 */
 exports.getbookingsByClient = async ({ clientProfileId }) => {
     try {
-        let customerBookings = await ClientBookings.find({ clientProfileId });
+        let customerBookings = await ClientBookings.find({ clientProfileId }).populate("bookedItemId");
+        console.log("bookings", customerBookings)
         return { customerBookings }
     } catch (error) {
         throw error;
