@@ -16,7 +16,7 @@ const {
     OperationFailedError,
 } = require("../utils/error");
 const { AUTH_TYPE } = require("../utils/constants");
-const { redisClient } = require("../utils/redis/redisConf");
+// const { redisClient } = require("../utils/redis/redisConf");
 const Userverification = require("../model/verificationSchema");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
@@ -125,8 +125,8 @@ exports.SignIn = async function ({ res, username, password }) {
             let profile_status;
   
             // store tokens into redis cache
-            await redisClient.set("token-"+ user._id, token);
-            await redisClient.set("refreshToken-"+ user._id, refreshToken);
+            // await redisClient.set("token-"+ user._id, token);
+            // await redisClient.set("refreshToken-"+ user._id, refreshToken);
 
             if (user.AcctType === "Client") {
               const client = await ClientProfile.findOne({ userId: user._id });
@@ -229,8 +229,8 @@ exports.insueRefreshToken = async function ({refreshToken, userId}) {
       await User.updateOne({_id: user._id}, {refreshTokens: refreshTokens});
   
       // store tokens into redis cache
-      await redisClient.set("token-"+ user._id, newToken);
-      await redisClient.set("refreshToken-"+ user._id, newRefreshToken);
+      // await redisClient.set("token-"+ user._id, newToken);
+      // await redisClient.set("refreshToken-"+ user._id, newRefreshToken);
   
   
       return {
