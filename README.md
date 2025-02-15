@@ -13,8 +13,8 @@ This backend application repository is for the Airbox Scheduling and Dashboard a
 
 # Setup
 ## Prerequisites
-1 Nodejs
-2 Mongodb either local or Atlas
+1. Nodejs
+2. Mongodb either local or Atlas
 
 ## Clone and Install
 1. Clone - [https://github.com/Tolugold1/Airboc-backend.git](#)
