@@ -64,5 +64,7 @@ This backend application repository is for the Airbox Scheduling and Dashboard a
 ## Analytics
   - Get /api/businessAnalytics/get-analytics/:businessId/:timeframe - gets business analytics.
 
+## Deployed link
+App is deployed to vercel - https://airboc-backend.vercel.app/api
 ***
 Developed by Tolulope Adeleke
