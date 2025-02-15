@@ -235,11 +235,13 @@ exports.VerifyOTP = async function ({ res, otpstring }) {
     const redirectUrl = process.env.FRONTEND_URL;
 
     // Check if OTP is expired
-    if (otp_user.expireAt < Date.now()) {
+    if (otp_user !== undefined && otp_user.expireAt < Date.now()) {
       await Userverification.deleteOne({ userId: verified.id });
       await User.deleteOne({ _id: verified.id });
       // Redirect immediately if expired
       return res.redirect(`${redirectUrl}/login?exp=Account could not be verified`);
+    } else {
+      return res.redirect(`${redirectUrl}/login`);
     }
 
     // Update user as confirmed
