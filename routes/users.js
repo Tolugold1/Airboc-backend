@@ -26,7 +26,7 @@ router.post("/refresh-token", authenticate.authenticateJWT, controller.HTTPReque
 
 router.get("/get-account-info", authenticate.authenticateJWT, controller.HTTPGetMyInfo)
 
-router.post("/change-password", validateChangePasword,  authenticate.authenticateJWT, controller.HTTPChangeMyPassword)
+router.post("/change-password", controller.HTTPChangeMyPassword)
 
 router.get("/verify-uniquestring/:token",  controller.HTTPVerifyOtpString)
 

@@ -80,6 +80,6 @@ exports.handleRedirectLink = async (res, id, route, data) => {
   }
 
   if (route === "Reset password page") {
-    res.redirect(`${process.env.FRONTEND_URL}/reset?userId=${id}`);
+    return res.redirect(`${process.env.FRONTEND_URL}/reset?userId=${id}`);
   }
 };

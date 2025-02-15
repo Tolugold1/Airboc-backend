@@ -8,15 +8,7 @@ const BusinessProfile = require("../model/businessAccount");
 const BusinessAnalytics = require("../model/businessAnalytics");
 const {
     ForbiddenError,
-    InvalidDetailsError,
-    UnauthorizedError,
-    FieldError,
     NotFoundError,
-    ExpiredError,
-    AlreadyExistError,
-    ApplicationError,
-    ExtractionFailed,
-    OperationFailedError,
 } = require("../utils/error");
 
 /**

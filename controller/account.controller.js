@@ -77,9 +77,9 @@ exports.HTTPGetMyInfo = async (req, res, next) => {
 
 exports.HTTPChangeMyPassword = async (req, res, next) => {
   try {
-    let { password } = req.body;
+    let { id, password } = req.body;
     const data = await Service.ChangeMyPassword({
-      id: req.user._id,
+      id,
       password,
     });
     handleResponse({
@@ -110,12 +110,12 @@ exports.HTTPUserForgotPassword = async (req, res, next) => {
 exports.HTTPVerifyOtpString = async (req, res, next) => {
   try {
     const data = await Service.VerifyOTP({ res, otpstring: req.params.token });
-    handleResponse({
-      res,
-      status: 200,
-      message: "A link has been sent to your mail for password reset",
-      data,
-    });
+    // handleResponse({
+    //   res,
+    //   status: 200,
+    //   message: "A link has been sent to your mail for password reset",
+    //   data,
+    // });
   } catch (error) {
     next(error)
   }
@@ -124,12 +124,12 @@ exports.HTTPVerifyOtpString = async (req, res, next) => {
 exports.HTTPValidateToken = async (req, res, next) => {
   try {
     const data = await Service.validateToken({ res, token: req.params.token });
-    handleResponse({
-      res,
-      status: 200,
-      message: "A link has been sent to your mail for password reset",
-      data,
-    });
+    // handleResponse({
+    //   res,
+    //   status: 200,
+    //   message: "A link has been sent to your mail for password reset",
+    //   data,
+    // });
   } catch (error) {
     next(error)
   }

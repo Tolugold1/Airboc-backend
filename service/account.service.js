@@ -93,34 +93,30 @@ exports.SignIn = async function ({ res, username, password }) {
         console.log("No data")
         throw NotFoundError("Account not found.", 404);
       } else {
-        if (user.authType !== "PASSWORD" || user.Confirmed !== true) {
-          const data = {
+        if (user.authType == "PASSWORD" && user.Confirmed !== true) {
+          let uniquestring = await SignToken({id: user._id});
+          await sendVerificationMail({
+            // type: "verification",
+            recipient: user.email,
+            token: uniquestring,
+            route: "verify-uniquestring"
+          });
+          return {
             success: false,
             statusCode: 404,
             status: user.Confirmed !== true ?  "Please you need to verify your email. The verification mail has been sent again to your email": "This email have been registered on another account.."
           }
-          return data;
         } else if (user.authType === "PASSWORD") {
           const pwdStat = await compareHashed(password, user.password);
           console.log("PwdStat", pwdStat);
   
           if (pwdStat) {
-            user.lastAccess = Date.now() / 1000;
-            if (user.profile_id === undefined) {
-              user.profile_id = await helper.generateUniqueString(user);
-            }
+            // if (user.profile_id === undefined) {
+            //   user.profile_id = await helper.generateUniqueString(user);
+            // }
             // await user.save();
-            if (user.signed_in == 0 || user.signed_in == false) {
-              // send an email and update the signed_in flag to true
-              user.signed_in = 1;
-            } else {
-              user.signed_in = user.signed_in + 1;
-            } 
-            user.refreshTokens.pop();
             let token =  authenticate.getToken({ _id: user._id });
-            let refreshToken = authenticate.getRefreshToken({ _id: user._id });
-            // let encrytedRefreshToken = authenticate.encryptToken(refreshToken);
-            user.refreshTokens.push(refreshToken);
+
             user.save();
             let profile_status;
   
@@ -129,66 +125,28 @@ exports.SignIn = async function ({ res, username, password }) {
             // await redisClient.set("refreshToken-"+ user._id, refreshToken);
 
             if (user.AcctType === "Client") {
-              const client = await ClientProfile.findOne({ userId: user._id });
-  
-              if (client !== null) {
-                profile_status = true;
-                const data = {
-                  success: true,
-                  statusCode: 200,
-                  status: "Sign in successful",
-                  token: token,
-                  refreshToken: refreshToken,
-                  profile_status: { profile_status: profile_status, AcctType: user.AcctType }
-                };
-                // check if signed_in flag is true
-                return data;
-              } else {
-                
-                profile_status = false;
-                const data = {
-                  success: true,
-                  statusCode: 200,
-                  status: "Sign in successful",
-                  token: token,
-                  refreshToken: refreshToken,
-                  profile_status: { profile_status: profile_status, AcctType: user.AcctType }
-                };
-                return data;
-              } 
+              return {
+                success: true,
+                statusCode: 200,
+                status: "Sign in successful",
+                token: token,
+                profile_status: { AcctType: user.AcctType }
+              };
             } else if (user.AcctType === "Official") {
-              const employer = await BusinessProfile.findOne({ userId: user._id });
-              if (employer) {
-                profile_status = true;
-                const data = {
-                  success: true,
-                  statusCode: 200,
-                  status: "Sign in successful",
-                  token: token,
-                  refreshToken: refreshToken,
-                  profile_status: { profile_status: profile_status, AcctType: user.AcctType }
-                };
-                return data;
-              } else {
-                profile_status = false;
-                const data = {
-                  success: true,
-                  statusCode: 200,
-                  status: "Sign in successful",
-                  token: token,
-                  refreshToken: refreshToken,
-                  profile_status: { profile_status: profile_status, AcctType: user.AcctType }
-                };
-                return data;
-              }
+              return {
+                success: true,
+                statusCode: 200,
+                status: "Sign in successful",
+                token: token,
+                profile_status: { AcctType: user.AcctType }
+              };
             }
           } else {
-            const data = {
+            return {
               success: false,
               statusCode: 404,
               status: "Incorrect password."
             };
-            return data;
           }
         }
       }
@@ -197,70 +155,7 @@ exports.SignIn = async function ({ res, username, password }) {
       console.log("sigining error", error);
       throw error;
     }
-};
-  
-
-exports.insueRefreshToken = async function ({refreshToken, userId}) {
-    try {
-      if (!refreshToken) {
-        return new ForbiddenError("No refresh token provided");
-      }
-  
-      // verify the refresh token
-      let user = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET_KEY);
-      if (!user) {
-        return new ForbiddenError("Invalid refresh token");
-      }
-      console.log("user info from token validation", user);
-      // check if the user id in the refresh token is the same as the current user id
-      if (user._id !== userId) {
-        return new ForbiddenError("Invalid refresh token");
-      }
-  
-      // get user 
-      let userInfo = await User.findById({_id: user._id}).select("refreshTokens").lean();
-      let refreshTokens = userInfo.refreshTokens;
-      refreshTokens = refreshTokens.filter(token => token !== refreshToken);
-  
-      let newToken = authenticate.getToken({_id: user._id});
-      let newRefreshToken = authenticate.getRefreshToken({_id: user._id});
-  
-      refreshTokens.push(newRefreshToken);
-      await User.updateOne({_id: user._id}, {refreshTokens: refreshTokens});
-  
-      // store tokens into redis cache
-      // await redisClient.set("token-"+ user._id, newToken);
-      // await redisClient.set("refreshToken-"+ user._id, newRefreshToken);
-  
-  
-      return {
-        status: "refresh token gotten successfuly",
-        statusCode: 200,
-        token: newToken,
-        refreshToken: newRefreshToken
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  
-  
-  
-  exports.resendVerification = async function ({ email }) {
-    try {
-      const user = await User.findOne({ email }).lean();
-      if (!user) throw NotFoundError("User with this email does not exist");
-      console.log(user);
-      // TODO: resent mail to user when they tried to login but havn't verify mail.
-      // return await sendVerificationMail({
-      //   _id: user._id,
-      //   username: user.username,
-      //   type: "verification",
-      // });
-    } catch (error) {
-      throw error;
-    }
-  };
+  };  
   
   exports.GetMyInfo = async function ({ id }) {
     try {
@@ -278,18 +173,17 @@ exports.insueRefreshToken = async function ({refreshToken, userId}) {
   exports.ChangeMyPassword = async function ({ id, password }) {
     try {
       // Get the user
+      console.log("password", password);
       const user = await User.findById(id);
-      user.setPassword(password);
+      user.password = password;
       user.refreshTokens = [];
       await user.save();
       console.log("user", user)
-      return user.AcctType;
+      return "Password changed successfully";
     } catch (error) {
       throw error;
     }
-};
-
-
+  };
 
 // THE FORGOT PASSWORD SHOULD TAKE THE USER EMAIL AND SEND AN OTP TO THAT EMAIL
 // THIS EMAIL WILL BE USED TO RESET THE PASSWORD....
@@ -313,6 +207,7 @@ exports.ForgotPassword = async function ({ username }) {
       });
 
       await user.save();
+      return "An email has been sent to your mail.kindly click the link and follow the instruction."
     } catch (error) {
       throw error;
     }
@@ -366,26 +261,29 @@ exports.VerifyOTP = async function ({ res, otpstring }) {
 
 exports.validateToken = async function ({ res, token }) {
   try {
+    console.log("token", token);
     const verified = jwt.verify(token, process.env.SECRET_KEY);
+    console.log("verified", verified)
     if (!verified) {
       console.log("Token not verified.")
       // redirect to the same forgot password page.
       res.redirect(`${process.env.FRONTEND_URL}/forgotPassword`)
     }
+    let id = verified.id;
     const user = await User.findOne({ _id: id });
     if (!user) throw err.NotFoundError("User not found");
-
+    let route;
     if (Date.now() > user.reset_password_expiresAt) {
-      const route = "Expire";
+      route = "Expire";
       helper.handleRedirectLink(res, id, route);
       throw ExpiredError("OTP has expired");
     }
-    console.log("status", verify);
     console.log("reset_token", user.reset_password_token);
-    if (token === user.reset_password_token) {
-      const route = "Reset password page";
+    if (token == user.reset_password_token) {
+      route = "Reset password page";
       console.log("route", route);
-      helper.handleRedirectLink(res, id, route);
+      // return res.redirect(`${process.env.FRONTEND_URL}/reset?userId=${id}`);
+      return res.redirect(`${process.env.FRONTEND_URL}/reset?userId=${id}`);
     } else {
       throw InvalidDetailsError("Token not the same with the store token", 400);
     }

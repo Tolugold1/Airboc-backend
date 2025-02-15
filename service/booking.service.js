@@ -187,25 +187,28 @@ exports.editBookedItemByClient = async ({clientProfileId, bookingId, updateData}
  * @param {Object} updateData - Fields to update in the booking by business owner.
  * @returns {Promise<Object>}
  */
-exports.UpdateBookedItemByBusiness = async({ bookingId, updateData }) => {
+exports.UpdateBookedItemByBusiness = async({ bookingId, status }) => {
     try {
+        console.log("bookingId", bookingId, status)
         let booking = await Bookings.findOne({ _id: bookingId });
         if ( !booking ) throw NotFoundError("Booking not found", 404);
-        booking.status = updateData;
+        booking.status = status;
         await booking.save();
+        console.log("booking", booking);
         // update client booking schema record as well
-        await ClientBookings.updateOne({ clientProfileId: booking.clientProfileId, bookedItemId: booking.bookedItemId }, { $set: { status: updateData}}, { new: true });
-        let businessAnalytics = await BusinessAnalytics.findOne({ businessId }).lean();
-        if (updateData == "completed") {
+        await ClientBookings.updateOne({ clientProfileId: booking.clientProfileId, bookedItemId: booking.bookedItemId }, { $set: { status: status}}, { new: true });
+        let businessAnalytics = await BusinessAnalytics.findOne({ businessId: booking.businessId });
+        if (status == "completed") {
             businessAnalytics.TotalCompletedBooking += 1;
             businessAnalytics.TotalScheduledBooking -= 1;
         }
-        if (updateData == "cancelled") {
+        if (status == "cancelled") {
             businessAnalytics.TotalCancelledBooking += 1;
             businessAnalytics.TotalScheduledBooking -= 1;
         }
         await businessAnalytics.save();
-        return { booking }
+        const bookings = await Bookings.find({ _id: bookingId });
+        return {bookings};
     } catch (error) {
         throw error;
     }

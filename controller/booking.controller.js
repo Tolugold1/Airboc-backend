@@ -177,17 +177,17 @@ exports.HTTPUpdateBookingByBusiness = async (req, res, next) => {
     try {
       let {
         bookingId, 
-        updateData
+        status
       } = req.body;
       const data = await Service.UpdateBookedItemByBusiness({ 
         bookingId, 
-        updateData
+        status
       });
   
       handleResponse({
         res,
         status: 200,
-        message: "Business analytics gotten successfully.",
+        message: "Business bookings updated successfully.",
         data,
       });
     } catch (error) {
